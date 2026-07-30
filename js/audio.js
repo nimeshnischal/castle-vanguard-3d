@@ -1,10 +1,8 @@
-// Web Audio API Synthesizer for RTCW Sound FX, Voice Barks, Footsteps, and Ambient Music
+// Web Audio API Synthesizer for Sound FX, Voice Barks, Footsteps, and Crisp Action Audio
 class SoundEngine {
     constructor() {
         this.ctx = null;
         this.enabled = true;
-        this.ambientOsc = null;
-        this.ambientGain = null;
         this.initialized = false;
     }
 
@@ -14,7 +12,6 @@ class SoundEngine {
             const AudioContext = window.AudioContext || window.webkitAudioContext;
             this.ctx = new AudioContext();
             this.initialized = true;
-            this.startAmbientMusic();
         } catch (e) {
             console.warn('Web Audio API not supported', e);
         }
@@ -32,7 +29,7 @@ class SoundEngine {
         osc.frequency.setValueAtTime(80, now);
         osc.frequency.exponentialRampToValueAtTime(30, now + 0.08);
 
-        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.setValueAtTime(0.15, now);
         gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
 
         osc.connect(gain);
@@ -47,7 +44,6 @@ class SoundEngine {
         if (!this.enabled || !this.ctx) return;
         const now = this.ctx.currentTime;
 
-        // Click 1 (Eject mag)
         const osc1 = this.ctx.createOscillator();
         const gain1 = this.ctx.createGain();
         osc1.type = 'square';
@@ -58,7 +54,6 @@ class SoundEngine {
         gain1.connect(this.ctx.destination);
         osc1.start(now);
 
-        // Click 2 (Insert mag)
         const osc2 = this.ctx.createOscillator();
         const gain2 = this.ctx.createGain();
         osc2.type = 'sawtooth';
@@ -96,7 +91,7 @@ class SoundEngine {
         if (!this.enabled || !this.ctx) return;
         const now = this.ctx.currentTime;
 
-        const notes = [440, 554.37, 659.25, 880]; // A4, C#5, E5, A5
+        const notes = [440, 554.37, 659.25, 880];
         notes.forEach((freq, i) => {
             const osc = this.ctx.createOscillator();
             const gain = this.ctx.createGain();
@@ -111,7 +106,7 @@ class SoundEngine {
         });
     }
 
-    // German Audio Barks ("Achtung!", "Feuer!", "Alarm!")
+    // Enemy Voice Barks
     playGermanBark() {
         if (!this.enabled || !this.ctx) return;
         const now = this.ctx.currentTime;
@@ -121,18 +116,15 @@ class SoundEngine {
 
         const type = Math.random();
         if (type < 0.33) {
-            // "Achtung!" (Pitch drop-up)
             osc.type = 'sawtooth';
             osc.frequency.setValueAtTime(220, now);
             osc.frequency.linearRampToValueAtTime(380, now + 0.15);
             osc.frequency.linearRampToValueAtTime(160, now + 0.35);
         } else if (type < 0.66) {
-            // "Feuer!" (Sharp bark)
             osc.type = 'square';
             osc.frequency.setValueAtTime(320, now);
             osc.frequency.exponentialRampToValueAtTime(110, now + 0.25);
         } else {
-            // "Alarm!" (Two-tone siren grunt)
             osc.type = 'triangle';
             osc.frequency.setValueAtTime(400, now);
             osc.frequency.setValueAtTime(300, now + 0.15);
@@ -148,7 +140,7 @@ class SoundEngine {
         osc.stop(now + 0.35);
     }
 
-    // Play pistol shot sound (Luger)
+    // Pistol Fire
     playPistol() {
         if (!this.enabled || !this.ctx) return;
         const now = this.ctx.currentTime;
@@ -179,7 +171,7 @@ class SoundEngine {
         noise.start(now);
     }
 
-    // Play MP40 Submachine gun fire
+    // SMG Fire
     playSMG() {
         if (!this.enabled || !this.ctx) return;
         const now = this.ctx.currentTime;
@@ -201,7 +193,7 @@ class SoundEngine {
         osc.stop(now + 0.08);
     }
 
-    // Play Knife Slash
+    // Knife Slash
     playKnife() {
         if (!this.enabled || !this.ctx) return;
         const now = this.ctx.currentTime;
@@ -223,7 +215,7 @@ class SoundEngine {
         osc.stop(now + 0.12);
     }
 
-    // Play Rocket Explosion (Panzerfaust & Barrels)
+    // Explosion
     playExplosion() {
         if (!this.enabled || !this.ctx) return;
         const now = this.ctx.currentTime;
@@ -254,7 +246,7 @@ class SoundEngine {
         noise.start(now);
     }
 
-    // Play Flamethrower hiss
+    // Flamethrower
     playFlame() {
         if (!this.enabled || !this.ctx) return;
         const now = this.ctx.currentTime;
@@ -284,7 +276,7 @@ class SoundEngine {
         noise.start(now);
     }
 
-    // Hurt / Damage sound
+    // Hurt sound
     playHurt() {
         if (!this.enabled || !this.ctx) return;
         const now = this.ctx.currentTime;
@@ -327,28 +319,6 @@ class SoundEngine {
 
         osc.start(now);
         osc.stop(now + 0.3);
-    }
-
-    startAmbientMusic() {
-        if (!this.ctx || this.ambientOsc) return;
-
-        this.ambientOsc = this.ctx.createOscillator();
-        this.ambientGain = this.ctx.createGain();
-
-        this.ambientOsc.type = 'sawtooth';
-        this.ambientOsc.frequency.setValueAtTime(55, this.ctx.currentTime);
-
-        const filter = this.ctx.createBiquadFilter();
-        filter.type = 'lowpass';
-        filter.frequency.setValueAtTime(180, this.ctx.currentTime);
-
-        this.ambientGain.gain.setValueAtTime(0.12, this.ctx.currentTime);
-
-        this.ambientOsc.connect(filter);
-        filter.connect(this.ambientGain);
-        this.ambientGain.connect(this.ctx.destination);
-
-        this.ambientOsc.start();
     }
 }
 
