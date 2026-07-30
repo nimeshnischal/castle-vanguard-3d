@@ -2,8 +2,11 @@
 
 An immersive, high-performance 3D retro First-Person Shooter (FPS) built with **Three.js WebGL** and **Web Audio API**.
 
+> **Note**: This project was generated using **Google Antigravity**.
+
 ![Castle Vanguard 3D](https://img.shields.io/badge/WebGL-Three.js-red.svg)
 ![License](https://img.shields.io/badge/License-MIT-blue.svg)
+![Generated with](https://img.shields.io/badge/Generated%20With-Google%20Antigravity-orange.svg)
 
 ## 🎮 Game Features
 
@@ -42,6 +45,10 @@ An immersive, high-performance 3D retro First-Person Shooter (FPS) built with **
 - **Space**: Jump
 - **E**: Open Iron Doors / Push Secret Walls
 - **P / ESC**: Pause Menu
+
+## ⚡ Disclaimer
+
+This project was generated using **Google Antigravity**.
 
 ## 🛡️ License & IP Statement
 

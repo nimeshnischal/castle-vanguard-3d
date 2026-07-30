@@ -533,6 +533,17 @@ body, html {
     font-weight: bold;
 }
 
+.disclaimer-footer {
+    margin-top: 12px;
+    font-size: 0.75rem;
+    color: #8c7156;
+    letter-spacing: 1px;
+}
+
+.disclaimer-footer strong {
+    color: #dfb260;
+}
+
 .death-title {
     font-family: 'Cinzel', serif;
     font-size: 3.5rem;
