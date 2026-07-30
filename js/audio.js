@@ -1,4 +1,4 @@
-// Web Audio API Synthesizer for Sound FX, Voice Barks, Footsteps, and Crisp Action Audio
+// Web Audio API Synthesizer for Clean Sound FX & Reload Audio
 class SoundEngine {
     constructor() {
         this.ctx = null;
@@ -39,11 +39,12 @@ class SoundEngine {
         osc.stop(now + 0.08);
     }
 
-    // Weapon Reload sound
+    // Weapon Reload sound (with guaranteed oscillator termination)
     playReload() {
         if (!this.enabled || !this.ctx) return;
         const now = this.ctx.currentTime;
 
+        // Click 1 (Eject magazine)
         const osc1 = this.ctx.createOscillator();
         const gain1 = this.ctx.createGain();
         osc1.type = 'square';
@@ -53,17 +54,19 @@ class SoundEngine {
         osc1.connect(gain1);
         gain1.connect(this.ctx.destination);
         osc1.start(now);
+        osc1.stop(now + 0.05); // Fixed: Explicitly stop oscillator 1
 
+        // Click 2 (Insert magazine)
         const osc2 = this.ctx.createOscillator();
         const gain2 = this.ctx.createGain();
         osc2.type = 'sawtooth';
-        osc2.frequency.setValueAtTime(400, now + 0.2);
-        gain2.gain.setValueAtTime(0.4, now + 0.2);
-        gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+        osc2.frequency.setValueAtTime(400, now + 0.15);
+        gain2.gain.setValueAtTime(0.3, now + 0.15);
+        gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
         osc2.connect(gain2);
         gain2.connect(this.ctx.destination);
-        osc2.start(now + 0.2);
-        osc2.stop(now + 0.3);
+        osc2.start(now + 0.15);
+        osc2.stop(now + 0.25); // Fixed: Explicitly stop oscillator 2
     }
 
     // Empty Magazine Click
@@ -169,6 +172,7 @@ class SoundEngine {
         gain.connect(this.ctx.destination);
 
         noise.start(now);
+        noise.stop(now + 0.15);
     }
 
     // SMG Fire
@@ -244,6 +248,7 @@ class SoundEngine {
         gain.connect(this.ctx.destination);
 
         noise.start(now);
+        noise.stop(now + 0.8);
     }
 
     // Flamethrower
@@ -274,6 +279,7 @@ class SoundEngine {
         gain.connect(this.ctx.destination);
 
         noise.start(now);
+        noise.stop(now + 0.1);
     }
 
     // Hurt sound
