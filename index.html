@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Castle Vanguard 3D: Web Genesis</title>
+    <meta name="description" content="An original 3D retro Gothic FPS game inspired by classic 90s shooters built with WebGL Three.js and Web Audio API.">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Press+Start+2P&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+    <div id="game-container">
+        <!-- 3D Canvas -->
+        <canvas id="webgl-canvas"></canvas>
+
+        <!-- Damage & Effect Overlays -->
+        <div id="overlay-flash" class="overlay"></div>
+        <div id="pickup-flash" class="overlay"></div>
+        <div id="secret-flash" class="overlay"></div>
+
+        <!-- HUD Layer -->
+        <div id="hud-layer" class="hud-container hidden">
+            <!-- Top Bar: Objectives & Boss Health Bar -->
+            <div id="hud-top">
+                <div class="hud-box objective-box">
+                    <span class="hud-label">📜 OBJECTIVE:</span>
+                    <span id="objective-text">Defeat Iron Dreadnought & Escape Fortress</span>
+                </div>
+
+                <!-- Boss Health Bar Container -->
+                <div id="boss-bar-container" class="boss-bar-box hidden">
+                    <span class="boss-title">⚠️ IRON DREADNOUGHT BOSS ⚠️</span>
+                    <div class="boss-bar-outer"><div id="boss-bar-inner" style="width: 100%;"></div></div>
+                </div>
+
+                <div class="hud-box score-box">
+                    <span class="hud-label">SECRETS <span id="secrets-found">0</span>/2</span>
+                    <span class="hud-label">SCORE</span>
+                    <span id="score-val">000000</span>
+                </div>
+            </div>
+
+            <!-- Dynamic Crosshair -->
+            <div id="crosshair">
+                <div class="ch-dot"></div>
+                <div class="ch-line ch-top"></div>
+                <div class="ch-line ch-bottom"></div>
+                <div class="ch-line ch-left"></div>
+                <div class="ch-line ch-right"></div>
+            </div>
+
+            <!-- Reload Prompt / Message -->
+            <div id="reload-prompt" class="reload-banner hidden">PRESS 'R' TO RELOAD</div>
+            <div id="game-message" class="message-banner"></div>
+
+            <!-- Bottom Retro HUD Frame -->
+            <div id="hud-bottom">
+                <div class="hud-panel left-panel">
+                    <!-- Health -->
+                    <div class="hud-stat-box health-box">
+                        <span class="stat-title">HEALTH</span>
+                        <div class="stat-num-container">
+                            <span id="hud-health-num" class="stat-value">100</span><span class="stat-unit">%</span>
+                        </div>
+                        <div class="bar-outer"><div id="hud-health-bar" class="bar-inner health-bar-inner" style="width: 100%;"></div></div>
+                    </div>
+
+                    <!-- Armor -->
+                    <div class="hud-stat-box armor-box">
+                        <span class="stat-title">ARMOR</span>
+                        <div class="stat-num-container">
+                            <span id="hud-armor-num" class="stat-value">50</span><span class="stat-unit">%</span>
+                        </div>
+                        <div class="bar-outer"><div id="hud-armor-bar" class="bar-inner armor-bar-inner" style="width: 50%;"></div></div>
+                    </div>
+                </div>
+
+                <!-- Hero Avatar Face in Center -->
+                <div class="hud-panel face-panel">
+                    <div class="portrait-frame">
+                        <canvas id="avatar-canvas" width="64" height="64"></canvas>
+                    </div>
+                    <div class="keys-display">
+                        <span id="key-red" class="key-icon locked" title="Red Keycard">🔑</span>
+                        <span id="key-blue" class="key-icon locked" title="Blue Keycard">🗝️</span>
+                        <span id="key-gold" class="key-icon locked" title="Master Key">🔐</span>
+                    </div>
+                </div>
+
+                <div class="hud-panel right-panel">
+                    <!-- Ammo & Weapon -->
+                    <div class="hud-stat-box ammo-box">
+                        <span class="stat-title" id="hud-weapon-name">STORM SUBMACHINE GUN</span>
+                        <div class="stat-num-container">
+                            <span id="hud-ammo-clip" class="stat-value">30</span>
+                            <span class="stat-slash">/</span>
+                            <span id="hud-ammo-reserve" class="stat-subvalue">120</span>
+                        </div>
+                    </div>
+
+                    <!-- Minimap Radar -->
+                    <div class="minimap-container">
+                        <canvas id="minimap-canvas" width="100" height="100"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Weapon View Canvas -->
+        <canvas id="weapon-canvas" width="400" height="300"></canvas>
+
+        <!-- Menus Overlay -->
+        <!-- Main Start Screen -->
+        <div id="start-screen" class="menu-screen">
+            <div class="menu-backdrop"></div>
+            <div class="menu-content">
+                <div class="logo-container">
+                    <h2 class="subtitle">RETURN TO FORTRESS</h2>
+                    <h1 class="main-title">CASTLE VANGUARD</h1>
+                    <div class="badge">3D WEB EDITION</div>
+                </div>
+
+                <div class="briefing-box">
+                    <h3>MISSION BRIEFING: OPERATION VANGUARD</h3>
+                    <p>Agent Jack Stone, you are trapped inside the underground catacombs of Fortress Vanguard. Syndicate forces have deployed a cybernetic Iron Dreadnought boss! Push hidden secret walls, blow up explosive fuel barrels, retrieve keycards, and escape!</p>
+                </div>
+
+                <div class="difficulty-select">
+                    <h4>SELECT DIFFICULTY</h4>
+                    <div class="diff-buttons">
+                        <button class="diff-btn" data-diff="easy">Recruit (Easy)</button>
+                        <button class="diff-btn active" data-diff="medium">Vanguard (Normal)</button>
+                        <button class="diff-btn" data-diff="hard">Iron Legend (Hard)</button>
+                    </div>
+                </div>
+
+                <button id="btn-start" class="cta-button">ENTER THE FORTRESS [ CLICK TO PLAY ]</button>
+
+                <div class="controls-guide">
+                    <div class="control-item"><span>WASD / Arrows</span> Move</div>
+                    <div class="control-item"><span>Mouse</span> Look / Aim</div>
+                    <div class="control-item"><span>Left Click</span> Attack / Fire</div>
+                    <div class="control-item"><span>1 - 5</span> Select Weapon</div>
+                    <div class="control-item"><span>R</span> Reload Magazine</div>
+                    <div class="control-item"><span>Shift</span> Sprint</div>
+                    <div class="control-item"><span>Space</span> Jump</div>
+                    <div class="control-item"><span>E</span> Open Doors / Push Secret Walls</div>
+                    <div class="control-item"><span>P / ESC</span> Pause Menu</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pause Screen -->
+        <div id="pause-screen" class="menu-screen hidden">
+            <div class="menu-backdrop"></div>
+            <div class="menu-content pause-content">
+                <h2>GAME PAUSED</h2>
+                <div class="menu-actions">
+                    <button id="btn-resume" class="cta-button">RESUME GAME</button>
+                    <div class="setting-toggle">
+                        <label>Sound & Music FX:</label>
+                        <input type="checkbox" id="toggle-audio" checked>
+                    </div>
+                    <button id="btn-restart" class="secondary-button">RESTART LEVEL</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Over Screen -->
+        <div id="gameover-screen" class="menu-screen hidden">
+            <div class="menu-backdrop blood-backdrop"></div>
+            <div class="menu-content">
+                <h1 class="death-title">YOU DIED</h1>
+                <p class="death-sub">The Fortress claims another operative...</p>
+                <div class="stats-summary" id="death-stats"></div>
+                <button id="btn-retry" class="cta-button">TRY AGAIN</button>
+            </div>
+        </div>
+
+        <!-- Victory Screen -->
+        <div id="victory-screen" class="menu-screen hidden">
+            <div class="menu-backdrop victory-backdrop"></div>
+            <div class="menu-content">
+                <h1 class="victory-title">FORTRESS ESCAPED!</h1>
+                <p class="victory-sub">Iron Dreadnought Defeated & Mission Accomplished!</p>
+                <div class="stats-summary" id="victory-stats"></div>
+                <button id="btn-play-again" class="cta-button">PLAY AGAIN</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/textures.js"></script>
+    <script src="js/audio.js"></script>
+    <script src="js/level.js"></script>
+    <script src="js/weapons.js"></script>
+    <script src="js/player.js"></script>
+    <script src="js/enemies.js"></script>
+    <script src="js/game.js"></script>
+</body>
+</html>
